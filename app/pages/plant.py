@@ -26,7 +26,6 @@ class PlantPageState(rx.State):
 )
 def plant_page() -> rx.Component:
     return rx.vstack(
-        # ─ stats cards ───────────────────────────────────────────────
         rx.grid(
             stats_card(
                 stat_name="Total Grape Bunches",

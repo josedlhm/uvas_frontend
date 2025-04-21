@@ -8,6 +8,7 @@ from ..components.card import card
 from app.views.berry_table import berry_table
 from ..views.stats_cards import stats_card
 
+
 @template(
     route="/fruit",
     title="Fruit Scans",
@@ -15,7 +16,6 @@ from ..views.stats_cards import stats_card
 )
 def fruit_page() -> rx.Component:
     return rx.vstack(
-        # ── stats cards ──────────────────────────────────────
         rx.grid(
             stats_card(
                 stat_name="Median Berry Size",
@@ -34,15 +34,18 @@ def fruit_page() -> rx.Component:
                 "1fr",
                 "repeat(1, 1fr)",
                 "repeat(2, 1fr)",
+ 
             ],
             width="100%",
         ),
+
+        # ── wrap the table in a full‑width card ────────────────
         card(
+            berry_table(),
+            spacing="2",
+            width="100%",
+        ),
 
-        # ── berry data table ───────────────────────────────
-        berry_table(),
 
-        spacing="2",
-        width="100%",)
-        
+
     )

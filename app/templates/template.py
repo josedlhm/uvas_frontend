@@ -29,6 +29,7 @@ def template(
     def decorator(page_fn: Callable[[], rx.Component]) -> rx.Component:
         def templated_page():
             return rx.flex(
+
             rx.vstack(
                     navbar(),                    
                     rx.hstack(                   
@@ -45,6 +46,7 @@ def template(
                     w="100%",
                 
             )
+        
             )
         @rx.page(
         route=route,
