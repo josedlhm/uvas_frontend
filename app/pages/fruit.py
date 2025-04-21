@@ -16,7 +16,9 @@ from ..views.stats_cards import stats_card
 )
 def fruit_page() -> rx.Component:
     return rx.vstack(
+        # ── 1) stats cards ───────────────────────────────
         rx.grid(
+            # two cards only
             stats_card(
                 stat_name="Median Berry Size",
                 value=FruitScanState.median_berry_size.to_string(),
@@ -29,23 +31,26 @@ def fruit_page() -> rx.Component:
                 icon="calculator",
                 icon_color="blue",
             ),
-            gap="1rem",
             grid_template_columns=[
-                "1fr",
-                "repeat(1, 1fr)",
-                "repeat(2, 1fr)",
- 
+                "1fr",            # base
+                "1fr",            # sm
+                "repeat(2, 1fr)"  # md, lg, xl all get 2 columns
             ],
+            gap="1rem",
+
+            # make sure the grid itself stretches the entire content width
             width="100%",
+            
         ),
 
-        # ── wrap the table in a full‑width card ────────────────
+        # ── 2) berry table ───────────────────────────────
         card(
             berry_table(),
             spacing="2",
             width="100%",
         ),
 
+        # ── 3) force this VStack to stretch too ────────
 
 
     )
