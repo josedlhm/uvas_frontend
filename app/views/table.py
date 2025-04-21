@@ -94,7 +94,7 @@ def bunch_table() -> rx.Component:
                 size="3",
                 variant="surface",
                 display=["none", "none", "none", "flex"],
-                on_click=rx.download(url="/data/new_data.csv"),
+                on_click=rx.download(url="/data/bunch_data.csv"),
             ),
             spacing="3",
             align="center",

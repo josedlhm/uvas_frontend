@@ -22,7 +22,7 @@ class PlantScanState(rx.State):
     @rx.event
     def load_entries(self):
         """Read plant_scans.csv into self.items (and trigger a rerender)."""
-        path = Path(__file__).parent.parent / "data" / "data.csv"
+        path = Path(__file__).parent.parent / "data" / "bunch_data.csv"
         with path.open(newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             # Convert each row into a Bunch, casting berries_count to float

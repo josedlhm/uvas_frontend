@@ -26,7 +26,7 @@ class BunchTableState(rx.State):
     @rx.event
     def load_rows(self):
         """Load data/new_data.csv into self.rows and set total_items."""
-        path = Path(__file__).parent.parent / "data" / "new_data.csv"
+        path = Path(__file__).parent.parent / "data" / "bunch_data.csv"
         with path.open(newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             records = [
