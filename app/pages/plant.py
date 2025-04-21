@@ -58,7 +58,6 @@ def plant_page() -> rx.Component:
         ),
         card(
 
-        # ─ the generic table under the cards ────────────────────────
         bunch_table(),
 
         spacing="2",

@@ -29,7 +29,7 @@ class PlantScanState(rx.State):
             self.items = [
                 Bunch(
                     bunch_id=row["bunch_id"],
-                    berries_count=float(row["berries_count"]),
+                    berries_count=float(row["n_visible_berries"]),
                 )
                 for row in reader
             ]
