@@ -1,6 +1,4 @@
-# app/berry_table_state.py
-
-import csv
+import sqlite3
 from pathlib import Path
 from typing import Any, List
 
@@ -25,24 +23,26 @@ class BerryTableState(rx.State):
 
     @rx.event
     def load_rows(self):
-        """Read berry_data.csv into self.rows and set total_items."""
-        path = Path(__file__).parent.parent / "data" / "berry_data.csv"
-        with path.open(newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            records = [
-                BerryRow(
-                    bunch_id=row["bunch_id"],
-                    berry_id=row["berry_id"],
-                    berry_size=float(row["berry_size"]),
-                )
-                for row in reader
-            ]
-        self.rows = records
-        self.total_items = len(records)
+        """Load all berries from the SQLite database (skip header row)."""
+        db_path = Path(__file__).parent.parent / "data" / "app.db"
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT bunch_id, berry_id, berry_size "
+            "FROM berry_data "
+            "WHERE bunch_id <> 'bunch_id'"
+        )
+        records = cursor.fetchall()
+        conn.close()
+
+        self.rows = [
+            BerryRow(bunch_id=b, berry_id=i, berry_size=float(s))
+            for b, i, s in records
+        ]
+        self.total_items = len(self.rows)
 
     @rx.var(cache=True)
     def filtered_rows(self) -> List[Any]:
-        """Sort rows by the selected column."""
         items = self.rows
         if self.sort_value:
             items = sorted(
@@ -54,7 +54,6 @@ class BerryTableState(rx.State):
 
     @rx.var(cache=True)
     def current_page(self) -> List[Any]:
-        """Slice out the current page of sorted rows."""
         start = self.offset
         return self.filtered_rows[start : start + self.limit]
 
@@ -68,7 +67,6 @@ class BerryTableState(rx.State):
             return 1
         return (self.total_items + self.limit - 1) // self.limit
 
-    # actions to flip sort or move pages
     def toggle_sort(self):
         self.sort_reverse = not self.sort_reverse
 

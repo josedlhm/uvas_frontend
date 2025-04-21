@@ -1,5 +1,4 @@
-# app/table_state.py
-import csv
+import sqlite3
 from pathlib import Path
 from typing import Any, List
 
@@ -10,7 +9,6 @@ class BunchRow(rx.Base):
     bunch_id: str
     n_visible_berries: int
     n_estimated_berries: float
-
 
 class BunchTableState(rx.State):
     """State to load & paginate the bunch table."""
@@ -25,24 +23,30 @@ class BunchTableState(rx.State):
 
     @rx.event
     def load_rows(self):
-        """Load data/new_data.csv into self.rows and set total_items."""
-        path = Path(__file__).parent.parent / "data" / "bunch_data.csv"
-        with path.open(newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            records = [
-                BunchRow(
-                    bunch_id=row["bunch_id"],
-                    n_visible_berries=int(row["n_visible_berries"]),
-                    n_estimated_berries=float(row["n_estimated_berries"]),
-                )
-                for row in reader
-            ]
-        self.rows = records
-        self.total_items = len(records)
+        """Load all bunches from the SQLite database (skip header)."""
+        db_path = Path(__file__).parent.parent / "data" / "app.db"
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT bunch_id, n_visible_berries, n_estimated_berries
+            FROM bunch_data
+            WHERE bunch_id <> 'bunch_id'
+        """)
+        records = cursor.fetchall()
+        conn.close()
+
+        self.rows = [
+            BunchRow(
+                bunch_id=b,
+                n_visible_berries=int(v),
+                n_estimated_berries=float(e),
+            )
+            for b, v, e in records
+        ]
+        self.total_items = len(self.rows)
 
     @rx.var(cache=True)
-    def filtered_rows(self) -> list[Any]:
-        """Sort rows by the selected column."""
+    def filtered_rows(self) -> List[Any]:
         items = self.rows
         if self.sort_value:
             items = sorted(
@@ -53,8 +57,7 @@ class BunchTableState(rx.State):
         return items
 
     @rx.var(cache=True)
-    def current_page(self) -> list[Any]:
-        """Slice out the current page of sorted rows."""
+    def current_page(self) -> List[Any]:
         start = self.offset
         return self.filtered_rows[start : start + self.limit]
 
@@ -68,7 +71,6 @@ class BunchTableState(rx.State):
             return 1
         return (self.total_items + self.limit - 1) // self.limit
 
-    # actions to flip sort or move pages
     def toggle_sort(self):
         self.sort_reverse = not self.sort_reverse
 
