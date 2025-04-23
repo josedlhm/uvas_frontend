@@ -1,37 +1,38 @@
-import sqlite3
-from pathlib import Path
+# app/PlantState.py
+
 from statistics import median
 from typing import List
 
 import reflex as rx
+from sqlalchemy.orm import Session
+
+from app.core.database import SessionLocal
+from app.models.db_models import Bunches
 
 class Bunch(rx.Base):
-    """One grape‑bunch entry from the database."""
+    """One grape-bunch entry from the database."""
     bunch_id: str
     berries_count: float
 
 class PlantScanState(rx.State):
-    """State for loading & computing metrics on grape‑bunch data."""
+    """State for loading & computing metrics on grape-bunch data."""
     items: List[Bunch] = []
 
     @rx.event
     def load_entries(self):
-        """Load bunch stats from SQLite for plant KPIs (skip header)."""
-        db_path = Path(__file__).parent.parent / "data" / "app.db"
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT bunch_id, n_visible_berries "
-            "FROM bunch_data "
-            "WHERE bunch_id <> 'bunch_id'"
-        )
-        records = cursor.fetchall()
-        conn.close()
-
-        self.items = [
-            Bunch(bunch_id=b, berries_count=float(v))
-            for b, v in records
-        ]
+        """Load bunch stats from Postgres via SQLAlchemy."""
+        session: Session = SessionLocal()
+        try:
+            records = session.query(Bunches).all()
+            self.items = [
+                Bunch(
+                    bunch_id=str(r.id),
+                    berries_count=float(r.n_visible_berries or 0),  
+                )
+                for r in records
+            ]
+        finally:
+            session.close()
 
     @rx.var(cache=True)
     def total_bunches(self) -> int:

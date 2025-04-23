@@ -1,9 +1,13 @@
-import sqlite3
-from pathlib import Path
+# app/FruitState.py
+
 from statistics import mean, median
 from typing import List
 
 import reflex as rx
+from sqlalchemy.orm import Session
+
+from app.core.database import SessionLocal
+from app.models.db_models import Berries
 
 class Berry(rx.Base):
     """One berry entry from the database."""
@@ -17,22 +21,20 @@ class FruitScanState(rx.State):
 
     @rx.event
     def load_entries(self):
-        """Load berry entries from SQLite for stats (skip header)."""
-        db_path = Path(__file__).parent.parent / "data" / "app.db"
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT bunch_id, berry_id, berry_size "
-            "FROM berry_data "
-            "WHERE bunch_id <> 'bunch_id'"
-        )
-        records = cursor.fetchall()
-        conn.close()
-
-        self.items = [
-            Berry(bunch_id=b, berry_id=i, berry_size=float(s))
-            for b, i, s in records
-        ]
+        """Load berry entries from Postgres via SQLAlchemy."""
+        session: Session = SessionLocal()
+        try:
+            records = session.query(Berries).all()
+            self.items = [
+                Berry(
+                    bunch_id=str(r.bunch_id),
+                    berry_id=str(r.id),
+                    berry_size=float(r.axis_1),
+                )
+                for r in records
+            ]
+        finally:
+            session.close()
 
     @rx.var(cache=True)
     def median_berry_size(self) -> float:

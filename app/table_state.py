@@ -1,11 +1,15 @@
-import sqlite3
-from pathlib import Path
+# app/table_state.py
+
 from typing import Any, List
 
 import reflex as rx
+from sqlalchemy.orm import Session
+
+from app.core.database import SessionLocal
+from app.models.db_models import Bunches
 
 class BunchRow(rx.Base):
-    """One grape‑bunch entry for the table."""
+    """One grape-bunch entry for the table."""
     bunch_id: str
     n_visible_berries: int
     n_estimated_berries: float
@@ -23,27 +27,21 @@ class BunchTableState(rx.State):
 
     @rx.event
     def load_rows(self):
-        """Load all bunches from the SQLite database (skip header)."""
-        db_path = Path(__file__).parent.parent / "data" / "app.db"
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT bunch_id, n_visible_berries, n_estimated_berries
-            FROM bunch_data
-            WHERE bunch_id <> 'bunch_id'
-        """)
-        records = cursor.fetchall()
-        conn.close()
-
-        self.rows = [
-            BunchRow(
-                bunch_id=b,
-                n_visible_berries=int(v),
-                n_estimated_berries=float(e),
-            )
-            for b, v, e in records
-        ]
-        self.total_items = len(self.rows)
+        """Load all bunches from Postgres via SQLAlchemy."""
+        session: Session = SessionLocal()
+        try:
+            records = session.query(Bunches).all()
+            self.rows = [
+                BunchRow(
+                    bunch_id=str(r.id),
+                    n_visible_berries=int(r.n_visible_berries),        # or real field
+                    n_estimated_berries=float(r.n_estimated_berries or 0),  # or real field
+                )
+                for r in records
+            ]
+            self.total_items = len(self.rows)
+        finally:
+            session.close()
 
     @rx.var(cache=True)
     def filtered_rows(self) -> List[Any]:

@@ -1,8 +1,12 @@
-import sqlite3
-from pathlib import Path
+# app/berry_table_state.py
+
 from typing import Any, List
 
 import reflex as rx
+from sqlalchemy.orm import Session
+
+from app.core.database import SessionLocal
+from app.models.db_models import Berries
 
 class BerryRow(rx.Base):
     """One berry entry for the table."""
@@ -23,23 +27,21 @@ class BerryTableState(rx.State):
 
     @rx.event
     def load_rows(self):
-        """Load all berries from the SQLite database (skip header row)."""
-        db_path = Path(__file__).parent.parent / "data" / "app.db"
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT bunch_id, berry_id, berry_size "
-            "FROM berry_data "
-            "WHERE bunch_id <> 'bunch_id'"
-        )
-        records = cursor.fetchall()
-        conn.close()
-
-        self.rows = [
-            BerryRow(bunch_id=b, berry_id=i, berry_size=float(s))
-            for b, i, s in records
-        ]
-        self.total_items = len(self.rows)
+        """Load all berries from Postgres via SQLAlchemy."""
+        session: Session = SessionLocal()
+        try:
+            berries = session.query(Berries).all()
+            self.rows = [
+                BerryRow(
+                    bunch_id=str(b.bunch_id),
+                    berry_id=str(b.id),
+                    berry_size=float(b.axis_1),
+                )
+                for b in berries
+            ]
+            self.total_items = len(self.rows)
+        finally:
+            session.close()
 
     @rx.var(cache=True)
     def filtered_rows(self) -> List[Any]:
