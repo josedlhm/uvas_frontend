@@ -1,6 +1,4 @@
 import reflex as rx
+from app.config import settings
 
-config = rx.Config(
-    app_name="app",
-    db_url="postgresql+psycopg2://pipeline:admin@localhost:5432/pipeline_db"
-)
+config = rx.Config(app_name=settings.app_name)

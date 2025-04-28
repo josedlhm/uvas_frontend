@@ -1,7 +1,7 @@
 # app/views/berry_table.py
 
 import reflex as rx
-from app.berry_table_state import BerryTableState, BerryRow
+from app.ui.state.berry_table import BerryTableState, BerryRow
 
 # ─── header & row renderers ──────────────────────────────────────────
 def _berry_header_cell(text: str, icon: str) -> rx.Component:

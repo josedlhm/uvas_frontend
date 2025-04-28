@@ -6,8 +6,8 @@ from typing import List
 import reflex as rx
 from sqlalchemy.orm import Session
 
-from app.core.database import SessionLocal
-from app.models.db_models import Berries
+from app.db.session import SessionLocal
+from app.db.models import Berries
 
 class Berry(rx.Base):
     """One berry entry from the database."""
@@ -29,7 +29,7 @@ class FruitScanState(rx.State):
                 Berry(
                     bunch_id=str(r.bunch_id),
                     berry_id=str(r.id),
-                    berry_size=float(r.axis_1),
+                    berry_size=float(r.axis_2),
                 )
                 for r in records
             ]

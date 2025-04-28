@@ -6,8 +6,8 @@ from typing import List
 import reflex as rx
 from sqlalchemy.orm import Session
 
-from app.core.database import SessionLocal
-from app.models.db_models import Bunches
+from app.db.session import SessionLocal
+from app.db.models import Bunches
 
 class Bunch(rx.Base):
     """One grape-bunch entry from the database."""

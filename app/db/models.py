@@ -37,8 +37,8 @@ class Bunches(Base):
     latitude              = Column(String, nullable=True)
     longitude             = Column(String, nullable=True)
     created_at            = Column(DateTime, default=func.now())
-    n_visible_berries     = Column(Integer, nullable=True)  # new
-    n_estimated_berries   = Column(Integer, nullable=True)  # new
+    n_visible_berries     = Column(Integer, nullable=True)  
+    n_estimated_berries   = Column(Integer, nullable=True)  
 
     upload = relationship("Upload", back_populates="bunches")
     berries = relationship(

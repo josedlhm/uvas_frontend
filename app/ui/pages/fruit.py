@@ -1,12 +1,12 @@
 # app/pages/fruit.py
 
 import reflex as rx
-from ..templates.template import template
-from app.FruitState import FruitScanState
-from app.berry_table_state import BerryTableState
-from ..components.card import card
-from app.views.berry_table import berry_table
-from ..views.stats_cards import stats_card
+from app.ui.layouts.shell import template
+from app.ui.state.fruit import FruitScanState
+from app.ui.state.berry_table import BerryTableState
+from app.ui.components.card import card
+from app.ui.components.berry_table import berry_table
+from app.ui.components.stats_cards import stats_card
 
 
 @template(

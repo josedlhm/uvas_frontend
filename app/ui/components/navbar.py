@@ -1,5 +1,5 @@
 import reflex as rx
-from app.state import BreadcrumbState  
+from app.ui.state.breadcrumb import BreadcrumbState  
 
 def navbar_link(text: str, url: str) -> rx.Component:
     return rx.link(

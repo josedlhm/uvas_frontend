@@ -1,9 +1,9 @@
 from __future__ import annotations
+import reflex as rx
 
 from typing import Callable
-import reflex as rx
-from app.components.navbar import navbar
-from app.components.sidebar import sidebar_bottom_profile
+from app.ui.components.navbar import navbar
+from app.ui.components.sidebar import sidebar_bottom_profile
 from .. import styles
 
 class ThemeState(rx.State):

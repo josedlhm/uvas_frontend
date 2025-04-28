@@ -1,12 +1,12 @@
 import reflex as rx
-from ..templates.template import template
-from ..components.card import card
-from ..PlantState import PlantScanState
-from ..views.stats_cards import stats_card
-import reflex as rx
+from app.ui.layouts.shell import template
+from app.ui.components.card import card
+from app.ui.state.plant import PlantScanState
 
-from app.views.table import bunch_table
-from app.table_state import BunchTableState
+from app.ui.components.stats_cards import stats_card
+
+from app.ui.components.bunch_table import bunch_table
+from app.ui.state.bunch_table import BunchTableState
 
 
 class PlantPageState(rx.State):

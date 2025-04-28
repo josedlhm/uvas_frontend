@@ -1,6 +1,6 @@
 # app/table_component.py
 import reflex as rx
-from app.table_state import BunchTableState, BunchRow
+from app.ui.state.bunch_table import BunchTableState, BunchRow
 
 #  ─── header & row renderers ──────────────────────────────────────────
 def _header_cell(text: str, icon: str) -> rx.Component:
