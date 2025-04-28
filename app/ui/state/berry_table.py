@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import Any, List
 
 import reflex as rx
@@ -6,65 +5,81 @@ from sqlalchemy.orm import Session
 
 from app.db.session import SessionLocal
 from app.db.models import Berries
-from app.ui.state.pagination import PaginationHelpers
-
 
 class BerryRow(rx.Base):
+    """One berry entry for the table."""
     bunch_id: str
     berry_id: str
     berry_size: float
 
+class BerryTableState(rx.State):
+    """State to load & paginate the berry table."""
+    rows: List[BerryRow] = []
 
-class BerryTableState(PaginationHelpers, rx.State):
-    """State for the berry table (Fruit page)."""
-
-    # unique client key
-    state_name = "berry_table"
-
-    # primitive fields -------------------------------------------------
-    rows: List[Any] = []
+    # sorting / pagination controls
     sort_value: str = ""
     sort_reverse: bool = False
+    total_items: int = 0
     offset: int = 0
     limit: int = 12
 
-    # -------- reactive vars -----------------------------------------
+    @rx.event
+    def load_rows(self):
+        """Load all berries from Postgres via SQLAlchemy."""
+        session: Session = SessionLocal()
+        try:
+            berries = session.query(Berries).all()
+            self.rows = [
+                BerryRow(
+                    bunch_id=str(b.bunch_id),
+                    berry_id=str(b.id),
+                    berry_size=float(b.axis_1),
+                )
+                for b in berries
+            ]
+            self.total_items = len(self.rows)
+        finally:
+            session.close()
+
     @rx.var(cache=True)
     def filtered_rows(self) -> List[Any]:
-        return self._filtered()
+        items = self.rows
+        if self.sort_value:
+            items = sorted(
+                items,
+                key=lambda r: getattr(r, self.sort_value),
+                reverse=self.sort_reverse,
+            )
+        return items
 
     @rx.var(cache=True)
     def current_page(self) -> List[Any]:
-        return self._page()
+        start = self.offset
+        return self.filtered_rows[start : start + self.limit]
 
     @rx.var(cache=True)
     def page_number(self) -> int:
-        return self._page_num()
-
-    @rx.var(cache=True)
-    def total_items(self) -> int:
-        return self._total_items()
+        return (self.offset // self.limit) + 1
 
     @rx.var(cache=True)
     def total_pages(self) -> int:
-        return self._total_pages()
+        if not self.total_items:
+            return 1
+        return (self.total_items + self.limit - 1) // self.limit
 
-    # -------- navigation events -------------------------------------
-    toggle_sort    = rx.event(PaginationHelpers._toggle_sort)
-    first_page     = rx.event(PaginationHelpers._first_page)
-    prev_page      = rx.event(PaginationHelpers._prev_page)
-    next_page      = rx.event(PaginationHelpers._next_page)
-    last_page      = rx.event(PaginationHelpers._last_page)
+    def toggle_sort(self):
+        self.sort_reverse = not self.sort_reverse
 
-    # -------- data loader -------------------------------------------
-    @rx.event
-    def load_rows(self):
-        with SessionLocal() as db:
-            self.rows = [
-                BerryRow(
-                    bunch_id=str(r.bunch_id),
-                    berry_id=str(r.id),
-                    berry_size=float(r.axis_1),
-                )
-                for r in db.query(Berries).all()
-            ]
+    def first_page(self):
+        self.offset = 0
+
+    def prev_page(self):
+        if self.page_number > 1:
+            self.offset -= self.limit
+
+    def next_page(self):
+        if self.page_number < self.total_pages:
+            self.offset += self.limit
+
+    def last_page(self):
+        self.offset = (self.total_pages - 1) * self.limit
