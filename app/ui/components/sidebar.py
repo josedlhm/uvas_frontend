@@ -29,6 +29,7 @@ def sidebar_items() -> rx.Component:
         rx.heading("Scans", size="5", weight="bold", align="left", margin_bottom="0.5rem"),
         sidebar_item("Plant", "leaf", "/plant"),
         sidebar_item("Fruit", "apple", "/fruit"),
+        sidebar_item("Uploads","cloud-upload",     "/uploads"),
         spacing="1",
         width="100%",
     )

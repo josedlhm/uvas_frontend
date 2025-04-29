@@ -15,3 +15,5 @@ app = rx.App(
 
 from app.ui.pages import plant   # noqa: E402,F401
 from app.ui.pages import fruit   # noqa: E402,F401
+from app.ui.pages import upload_data  # noqa: F401
+from app.ui.pages import login
