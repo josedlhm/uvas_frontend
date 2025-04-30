@@ -19,7 +19,8 @@ from app.ui.components.berry_table import berry_table
     ],
 )
 def fruit_page() -> rx.Component:
-    return rx.vstack(
+    return rx.vstack(        
+
         # ── Upload ID dropdown with full “Upload ID: {value}” text ────────
         rx.hstack(
             rx.select.root(
@@ -50,7 +51,6 @@ def fruit_page() -> rx.Component:
                 on_change=FruitScanState.set_filter_upload_id,
             ),
             width="100%",
-            padding_bottom="1em",
         ),
 
         # ── Stats cards ────────────────────────────────────────────
@@ -70,9 +70,14 @@ def fruit_page() -> rx.Component:
             grid_template_columns=["1fr", "1fr", "repeat(2, 1fr)"],
             gap="1rem",
             width="100%",
+            spacing = "4"
         ),
 
         # ── Chart & table ────────────────────────────────────────
         card(berry_size_distribution_chart(), spacing="2", width="100%"),
         card(berry_table(), spacing="2", width="100%"),
+
+        spacing = "8"
+
+
     )

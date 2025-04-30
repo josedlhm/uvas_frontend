@@ -1,5 +1,6 @@
 import reflex as rx
 
+
 def sidebar_item(text: str, icon: str, href: str) -> rx.Component:
     return rx.link(
         rx.hstack(
@@ -24,126 +25,97 @@ def sidebar_item(text: str, icon: str, href: str) -> rx.Component:
     )
 
 def sidebar_items() -> rx.Component:
-    # A header with "Scans" and two sidebar items: Plant and Fruit
     return rx.vstack(
         rx.heading("Scans", size="5", weight="bold", align="left", margin_bottom="0.5rem"),
         sidebar_item("Plant", "leaf", "/plant"),
         sidebar_item("Fruit", "apple", "/fruit"),
-        sidebar_item("Uploads","cloud-upload",     "/uploads"),
+        sidebar_item("Uploads", "cloud-upload", "/uploads"),
         spacing="1",
         width="100%",
     )
 
 def sidebar_bottom_profile() -> rx.Component:
-    return rx.box(
-        rx.desktop_only(
+    return rx.desktop_only(
+        # this vstack is the ONE parent container
+        rx.vstack(
+            # 1) all your “Scans” links
+            sidebar_items(),
+
+            # 2) spacer that grows to fill the middle
+            rx.spacer(),
+
+            # 3) the bottom links + divider + profile
             rx.vstack(
-        
-                # Include the adapted sidebar items here:
-                sidebar_items(),
-                rx.spacer(),
-                rx.vstack(
-                    rx.vstack(
-                        sidebar_item("Settings", "settings", "/#"),
-                        sidebar_item("Log out", "log-out", "/#"),
-                        spacing="1",
-                        width="100%",
-                    ),
-                    rx.divider(),
-                    rx.hstack(
-                        rx.icon_button(
-                            rx.icon("user"), size="3", radius="full"
-                        ),
-                        rx.vstack(
-                            rx.box(
-                                rx.text("My account", size="3", weight="bold"),
-                                rx.text("user@reflex.dev", size="2", weight="medium"),
-                                width="100%",
-                            ),
-                            spacing="0",
-                            align="start",
-                            justify="start",
-                            width="100%",
-                        ),
-                        padding_x="0.5rem",
-                        align="center",
-                        justify="start",
-                        width="100%",
-                    ),
-                    width="100%",
-                    spacing="5",
-                ),
-                spacing="5",
-                padding_x="1em",
-                padding_y="1.5em",
-                bg=rx.color("accent", 3),
-                align="start",
-                min_height="100vh",
-                width="16em",
+                sidebar_item("Settings", "settings", "/#"),
+                sidebar_item("Log out", "log-out", "/#"),
+                spacing="1",
+                width="100%",
             ),
+            rx.divider(),
+            rx.hstack(
+                rx.icon_button(rx.icon("user"), size="3", radius="full"),
+                rx.vstack(
+                    rx.text("My account", size="3", weight="bold"),
+                    rx.text("user@reflex.dev", size="2", weight="medium"),
+                    spacing="0",
+                    align="start",
+                ),
+                spacing="2",
+                width="100%",
+            ),
+
+            # KEY PROPS on the container:
+            height="100dvh",      # span the entire viewport
+            width="16em",
+            padding_x="1em",
+            padding_y="1.5em",
+            bg=rx.color("accent", 3),
+            align="start",
+            justify="between",    # push top group up, bottom group down
+            flex=1,
+            position="sticky",
+            top="0px",
         ),
+        # ── Mobile drawer ──
         rx.mobile_and_tablet(
             rx.drawer.root(
-                rx.drawer.trigger(
-                    rx.icon("align-justify", size=30)
-                ),
+                rx.drawer.trigger(rx.icon("align-justify", size=30)),
                 rx.drawer.overlay(z_index="5"),
                 rx.drawer.portal(
                     rx.drawer.content(
                         rx.vstack(
-                            rx.box(
-                                rx.drawer.close(
-                                    rx.icon("x", size=30)
-                                ),
-                                width="100%",
-                            ),
-                            # Include the adapted sidebar items here as well:
+                            rx.drawer.close(rx.icon("x", size=30)),
                             sidebar_items(),
                             rx.spacer(),
                             rx.vstack(
+                                sidebar_item("Settings", "settings", "/#"),
+                                sidebar_item("Log out", "log-out", "/#"),
+                                spacing="1",
+                            ),
+                            rx.divider(margin="0"),
+                            rx.hstack(
+                                rx.icon_button(rx.icon("user"), size="3", radius="full"),
                                 rx.vstack(
-                                    sidebar_item("Settings", "settings", "/#"),
-                                    sidebar_item("Log out", "log-out", "/#"),
-                                    width="100%",
-                                    spacing="1",
+                                    rx.text("My account", size="3", weight="bold"),
+                                    rx.text("user@reflex.dev", size="2", weight="medium"),
+                                    spacing="0",
                                 ),
-                                rx.divider(margin="0"),
-                                rx.hstack(
-                                    rx.icon_button(
-                                        rx.icon("user"), size="3", radius="full"
-                                    ),
-                                    rx.vstack(
-                                        rx.box(
-                                            rx.text("My account", size="3", weight="bold"),
-                                            rx.text("user@reflex.dev", size="2", weight="medium"),
-                                            width="100%",
-                                        ),
-                                        spacing="0",
-                                        justify="start",
-                                        width="100%",
-                                    ),
-                                    padding_x="0.5rem",
-                                    align="center",
-                                    justify="start",
-                                    width="100%",
-                                ),
-                                width="100%",
-                                spacing="5",
+                                spacing="2",
                             ),
                             spacing="5",
-                            width="100%",
                         ),
-                        top="auto",
-                        right="auto",
-                        height="100%",
                         width="20em",
                         padding="1.5em",
                         bg=rx.color("accent", 2),
-                    ),
-                    width="100%",
+                    )
                 ),
                 direction="left",
             ),
             padding="1em",
+            
         ),
+                direction="column",
+        height="100%",      # fills available height
+        width="16em",
+
     )

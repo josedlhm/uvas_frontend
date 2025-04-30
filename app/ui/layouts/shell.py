@@ -28,7 +28,7 @@ def template(
     """Decorator to wrap a page in navbar/sidebar + Theme + @rx.page."""
     def decorator(page_fn: Callable[[], rx.Component]) -> rx.Component:
         def templated_page():
-            return rx.vstack(
+            return rx.flex(
                     navbar(),                    
                     rx.hstack(                   
                         sidebar_bottom_profile(),
@@ -37,12 +37,19 @@ def template(
                             padding = '1.5rem',
                             w="100%",
                             flex="1",
+  
+                            min_h = "0"
                         ),
                         w="100%",
+                        min_h = "0",
+                        flex = "1", 
+                        align_items="stretch"
                     ),
                     spacing="0",
                     w="100%",
-                    align_items="stretch"
+                    align_items="stretch",
+                    height = "100vh",
+                    direction = "column"
                 
             )
         
